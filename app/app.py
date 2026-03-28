@@ -31,31 +31,103 @@ except LookupError:
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
-# Sample articles for display
+# Sample articles for display - Global News from various domains and regions
 SAMPLE_ARTICLES = [
     {
-        'title': 'Major Scientific Breakthrough in Renewable Energy',
-        'excerpt': 'Researchers have developed a new solar cell with 50% efficiency, potentially revolutionizing clean energy...',
-        'source': 'Science Daily',
-        'date': 'Mar 28, 2026'
+        'title': 'India Launches Revolutionary Space Mission to Mars',
+        'excerpt': 'Indian Space Research Organization successfully launched its latest mission to explore potential water deposits on Mars...',
+        'source': 'ISRO News',
+        'date': 'Mar 28, 2026',
+        'category': 'Science',
+        'region': '🇮🇳 India'
     },
     {
-        'title': 'Global Markets Show Strong Growth',
-        'excerpt': 'International stock markets reached new highs today as investor confidence continues to grow across sectors...',
-        'source': 'Financial Times',
-        'date': 'Mar 27, 2026'
+        'title': 'European Union Reaches Net-Zero Carbon Target',
+        'excerpt': 'EU member states announce significant progress toward 2030 carbon neutrality goals with renewable energy investments...',
+        'source': 'European Commission',
+        'date': 'Mar 27, 2026',
+        'category': 'Environment',
+        'region': '🇪🇺 Europe'
     },
     {
-        'title': 'AI Assistants Help Solve Complex Problems',
-        'excerpt': 'New artificial intelligence technologies are being deployed to assist with medical diagnosis and research...',
-        'source': 'Tech News',
-        'date': 'Mar 26, 2026'
+        'title': 'Japan Introduces AI-Powered Healthcare System',
+        'excerpt': 'Tokyo Medical Center deploys artificial intelligence to diagnose rare diseases with 99.2% accuracy rate...',
+        'source': 'Japan Times',
+        'date': 'Mar 26, 2026',
+        'category': 'Technology',
+        'region': '🇯🇵 Japan'
     },
     {
-        'title': 'Climate Summit Reaches Historic Agreement',
-        'excerpt': 'World leaders have agreed on new environmental protection measures to combat climate change...',
-        'source': 'Reuters',
-        'date': 'Mar 25, 2026'
+        'title': 'Brazil Discovers New Renewable Energy Source',
+        'excerpt': 'Brazilian researchers develop efficient green hydrogen technology that could replace fossil fuels within a decade...',
+        'source': 'Folha de S.Paulo',
+        'date': 'Mar 25, 2026',
+        'category': 'Energy',
+        'region': '🇧🇷 Brazil'
+    },
+    {
+        'title': 'African Nations Form Tech Innovation Hub',
+        'excerpt': 'Kenya, Nigeria, and South Africa collaborate to establish a continental technology development center...',
+        'source': 'African Union',
+        'date': 'Mar 24, 2026',
+        'category': 'Technology',
+        'region': '🌍 Africa'
+    },
+    {
+        'title': 'Australia Expands Quantum Computing Research',
+        'excerpt': 'Australian universities receive record funding for quantum computing projects with global applications...',
+        'source': 'Australian Tech Review',
+        'date': 'Mar 23, 2026',
+        'category': 'Science',
+        'region': '🇦🇺 Australia'
+    },
+    {
+        'title': 'Canada Launches Universal Basic Income Pilot',
+        'excerpt': 'Canadian province initiates groundbreaking universal basic income experiment affecting 50,000 residents...',
+        'source': 'CBC News',
+        'date': 'Mar 22, 2026',
+        'category': 'Policy',
+        'region': '🇨🇦 Canada'
+    },
+    {
+        'title': 'Singapore Becomes First Smart City Nation',
+        'excerpt': 'Singapore completes its transformation into a fully integrated smart city with IoT and AI infrastructure...',
+        'source': 'Singapore News',
+        'date': 'Mar 21, 2026',
+        'category': 'Technology',
+        'region': '🇸🇬 Singapore'
+    },
+    {
+        'title': 'Global Stock Markets Reach All-Time High',
+        'excerpt': 'International financial markets celebrate unprecedented gains driven by tech innovation and economic recovery...',
+        'source': 'Bloomberg',
+        'date': 'Mar 20, 2026',
+        'category': 'Business',
+        'region': '🌐 Global'
+    },
+    {
+        'title': 'New Medical Breakthrough in Cancer Treatment',
+        'excerpt': 'International research team announces 85% success rate in new immunotherapy for multiple cancer types...',
+        'source': 'Medical Times',
+        'date': 'Mar 19, 2026',
+        'category': 'Health',
+        'region': '🌐 Global'
+    },
+    {
+        'title': 'UAE Completes Largest Solar Farm Project',
+        'excerpt': 'United Arab Emirates inaugurates massive solar facility producing enough clean energy for 2 million homes...',
+        'source': 'Gulf Today',
+        'date': 'Mar 18, 2026',
+        'category': 'Energy',
+        'region': '🇦🇪 UAE'
+    },
+    {
+        'title': 'UK Reaches Milestone in Green Transport',
+        'excerpt': 'Britain announces 10 million electric vehicles on roads, surpassing all European peers in EV adoption...',
+        'source': 'BBC News',
+        'date': 'Mar 17, 2026',
+        'category': 'Environment',
+        'region': '🇬🇧 UK'
     }
 ]
 
@@ -72,10 +144,16 @@ def preprocess_input(text):
 def home():
     articles_html = ''.join([f'''
     <div class="article-card">
-        <div class="article-date">{article['date']}</div>
+        <div class="article-header">
+            <span class="article-region">{article['region']}</span>
+            <span class="article-category">{article['category']}</span>
+        </div>
         <h4>{article['title']}</h4>
         <p>{article['excerpt']}</p>
-        <div class="article-source">📰 {article['source']}</div>
+        <div class="article-footer">
+            <span class="article-source">📰 {article['source']}</span>
+            <span class="article-date">{article['date']}</span>
+        </div>
     </div>
     ''' for article in SAMPLE_ARTICLES])
     
@@ -245,14 +323,14 @@ def home():
             .articles-container {
                 display: flex;
                 flex-direction: column;
-                gap: 15px;
-                max-height: calc(100vh - 300px);
+                gap: 12px;
+                max-height: calc(100vh - 280px);
                 overflow-y: auto;
-                padding: 5px;
+                padding: 0 5px 5px 0;
             }
             
             .articles-container::-webkit-scrollbar {
-                width: 8px;
+                width: 7px;
             }
             
             .articles-container::-webkit-scrollbar-track {
@@ -280,11 +358,32 @@ def home():
                 box-shadow: 0 15px 40px rgba(0,0,0,0.3);
             }
             
-            .article-date {
-                font-size: 0.8em;
-                color: #999;
-                margin-bottom: 8px;
-                font-weight: 500;
+            .article-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+                gap: 10px;
+            }
+            
+            .article-region {
+                font-size: 0.75em;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 4px 10px;
+                border-radius: 5px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+            
+            .article-category {
+                font-size: 0.75em;
+                background: #e8f0ff;
+                color: #667eea;
+                padding: 4px 10px;
+                border-radius: 5px;
+                font-weight: 600;
+                white-space: nowrap;
             }
             
             .article-card h4 {
@@ -292,6 +391,7 @@ def home():
                 color: #333;
                 margin-bottom: 10px;
                 line-height: 1.3;
+                font-weight: 600;
             }
             
             .article-card p {
@@ -299,12 +399,26 @@ def home():
                 color: #666;
                 margin-bottom: 12px;
                 line-height: 1.5;
+                min-height: 40px;
+            }
+            
+            .article-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.8em;
+                color: #999;
+                border-top: 1px solid #f0f0f0;
+                padding-top: 10px;
             }
             
             .article-source {
-                font-size: 0.8em;
                 color: #667eea;
                 font-weight: 600;
+            }
+            
+            .article-date {
+                color: #999;
             }
             
             .refresh-btn {
@@ -431,10 +545,16 @@ def home():
                     const container = document.getElementById('articlesContainer');
                     container.innerHTML = shuffled.map(article => `
                         <div class="article-card">
-                            <div class="article-date">${article.date}</div>
+                            <div class="article-header">
+                                <span class="article-region">${article.region}</span>
+                                <span class="article-category">${article.category}</span>
+                            </div>
                             <h4>${article.title}</h4>
                             <p>${article.excerpt}</p>
-                            <div class="article-source">📰 ${article.source}</div>
+                            <div class="article-footer">
+                                <span class="article-source">📰 ${article.source}</span>
+                                <span class="article-date">${article.date}</span>
+                            </div>
                         </div>
                     `).join('');
                     

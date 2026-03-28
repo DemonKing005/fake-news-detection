@@ -307,6 +307,38 @@ def home():
                 font-weight: 600;
             }
             
+            .refresh-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 0.9em;
+                font-weight: 600;
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+                margin-top: 12px;
+                display: inline-block;
+            }
+            
+            .refresh-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            }
+            
+            .refresh-btn:active {
+                transform: translateY(0);
+            }
+            
+            .refresh-btn.spinning {
+                animation: spin 0.6s ease-in-out;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
             @media (max-width: 1024px) {
                 .main-container {
                     grid-template-columns: 1fr;
@@ -377,12 +409,39 @@ def home():
                 <div class="sidebar-header">
                     <h2>📰 Featured News</h2>
                     <p>Recent articles you can check</p>
+                    <button class="refresh-btn" onclick="refreshArticles()">🔄 Refresh News</button>
                 </div>
                 
-                <div class="articles-container">
+                <div class="articles-container" id="articlesContainer">
                     ''' + articles_html + '''
                 </div>
             </div>
+        </div>
+        
+        <script>
+            const allArticles = ''' + repr(SAMPLE_ARTICLES) + ''';
+            
+            function refreshArticles() {
+                const btn = document.querySelector('.refresh-btn');
+                btn.classList.add('spinning');
+                
+                // Shuffle and update articles
+                setTimeout(() => {
+                    const shuffled = [...allArticles].sort(() => Math.random() - 0.5);
+                    const container = document.getElementById('articlesContainer');
+                    container.innerHTML = shuffled.map(article => `
+                        <div class="article-card">
+                            <div class="article-date">${article.date}</div>
+                            <h4>${article.title}</h4>
+                            <p>${article.excerpt}</p>
+                            <div class="article-source">📰 ${article.source}</div>
+                        </div>
+                    `).join('');
+                    
+                    btn.classList.remove('spinning');
+                }, 600);
+            }
+        </script>
         </div>
     </body>
     </html>

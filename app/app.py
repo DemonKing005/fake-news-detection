@@ -245,8 +245,12 @@ def home():
             <span class="article-source">📰 {article['source']}</span>
             <span class="article-date">{article['date']}</span>
         </div>
+        <button class="copy-btn" onclick="copyToAnalyzer('{article['title']} {article['excerpt']}')">
+            📋 Copy to Analyzer
+        </button>
     </div>
-    ''' for article in SAMPLE_ARTICLES])
+    ''' for article in articles])
+    
     
     return render_template_string('''
     <!DOCTYPE html>
@@ -512,6 +516,29 @@ def home():
                 color: #999;
             }
             
+            .copy-btn {
+                width: 100%;
+                background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                font-size: 0.85em;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 12px;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            
+            .copy-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+            }
+            
+            .copy-btn:active {
+                transform: translateY(0);
+            }
+            
             .refresh-btn {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
@@ -646,11 +673,34 @@ def home():
                                 <span class="article-source">📰 ${article.source}</span>
                                 <span class="article-date">${article.date}</span>
                             </div>
+                            <button class="copy-btn" onclick="copyToAnalyzer('${article.title} ${article.excerpt}')">
+                                📋 Copy to Analyzer
+                            </button>
                         </div>
                     `).join('');
                     
                     btn.classList.remove('spinning');
                 }, 600);
+            }
+            
+            function copyToAnalyzer(text) {
+                // Get the textarea element
+                const textarea = document.getElementById('text');
+                
+                // Set the text
+                textarea.value = text;
+                
+                // Scroll to the textarea
+                textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Focus on the textarea
+                textarea.focus();
+                
+                // Highlight the text
+                textarea.select();
+                
+                // Show feedback
+                alert('Article copied to analyzer!\\nNow click "Analyze Article" to check if it is fake or real.');
             }
         </script>
         </div>

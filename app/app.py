@@ -5,8 +5,21 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import os
+import requests
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
+
+# News API Configuration (Get free API key from newsapi.org)
+NEWS_API_KEY = os.environ.get('NEWS_API_KEY', '')  # Set as environment variable
+NEWS_API_URL = 'https://newsapi.org/v2/top-headlines'
+CACHE_TIMEOUT = 3600  # Cache for 1 hour
+last_fetch_time = None
+cached_articles = None
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,6 +144,82 @@ SAMPLE_ARTICLES = [
     }
 ]
 
+def fetch_latest_news():
+    """Fetch latest news from NewsAPI with fallback to sample articles"""
+    global last_fetch_time, cached_articles
+    
+    # Return cached articles if still valid
+    if cached_articles and last_fetch_time:
+        if datetime.now() - last_fetch_time < timedelta(seconds=CACHE_TIMEOUT):
+            return cached_articles
+    
+    # Try to fetch from NewsAPI
+    if NEWS_API_KEY:
+        try:
+            params = {
+                'apiKey': NEWS_API_KEY,
+                'language': 'en',
+                'pageSize': 12,
+                'sortBy': 'publishedAt'
+            }
+            response = requests.get(NEWS_API_URL, params=params, timeout=5)
+            response.raise_for_status()
+            
+            data = response.json()
+            if data.get('status') == 'ok' and data.get('articles'):
+                articles = []
+                category_map = {
+                    'technology': 'Technology',
+                    'science': 'Science',
+                    'health': 'Health',
+                    'business': 'Business',
+                    'entertainment': 'Entertainment',
+                    'sports': 'Sports',
+                    'general': 'News'
+                }
+                
+                region_map = {
+                    'cnn': '🇺🇸',
+                    'bbc': '🇬🇧',
+                    'reuters': '🌐',
+                    'deutsche': '🇩🇪',
+                    'france': '🇫🇷',
+                    'nikkei': '🇯🇵',
+                    'hindustantimes': '🇮🇳',
+                    'chinadaily': '🇨🇳',
+                }
+                
+                for article in data['articles'][:12]:
+                    try:
+                        source_name = article.get('source', {}).get('name', 'News API')
+                        region = '🌐 Global'
+                        for key, val in region_map.items():
+                            if key.lower() in source_name.lower():
+                                region = f'{val} {source_name}'
+                                break
+                        
+                        articles.append({
+                            'title': article.get('title', 'Untitled')[:80],
+                            'excerpt': article.get('description', article.get('content', 'No description'))[:150],
+                            'source': source_name,
+                            'date': article.get('publishedAt', '').split('T')[0] if article.get('publishedAt') else 'Today',
+                            'category': 'News',
+                            'region': region,
+                            'url': article.get('url', '#')
+                        })
+                    except:
+                        continue
+                
+                if articles:
+                    cached_articles = articles
+                    last_fetch_time = datetime.now()
+                    return articles
+        except Exception as e:
+            print(f"Error fetching news from API: {e}")
+    
+    # Return sample articles as fallback
+    return SAMPLE_ARTICLES
+
 def preprocess_input(text):
     """Preprocess input text."""
     text = text.lower()
@@ -142,6 +231,8 @@ def preprocess_input(text):
 
 @app.route('/')
 def home():
+    # Fetch latest news from API or use sample articles
+    articles = fetch_latest_news()
     articles_html = ''.join([f'''
     <div class="article-card">
         <div class="article-header">
@@ -533,7 +624,7 @@ def home():
         </div>
         
         <script>
-            const allArticles = ''' + repr(SAMPLE_ARTICLES) + ''';
+            const allArticles = ''' + repr(articles) + ''';
             
             function refreshArticles() {
                 const btn = document.querySelector('.refresh-btn');

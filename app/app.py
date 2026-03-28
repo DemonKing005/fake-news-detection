@@ -4,16 +4,30 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import os
 
 app = Flask(__name__)
 
+# Get the directory where this script is located
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = os.path.join(BASE_DIR, 'models', 'fake_news_model.pkl')
+VECTORIZER_PATH = os.path.join(BASE_DIR, 'models', 'vectorizer.pkl')
+
 # Load model and vectorizer
-model = joblib.load('models/fake_news_model.pkl')
-vectorizer = joblib.load('models/vectorizer.pkl')
+model = joblib.load(MODEL_PATH)
+vectorizer = joblib.load(VECTORIZER_PATH)
 
 # NLTK setup
-nltk.download('stopwords')
-nltk.download('wordnet')
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
+try:
+    nltk.data.find('corpora/wordnet')
+except LookupError:
+    nltk.download('wordnet')
+
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
